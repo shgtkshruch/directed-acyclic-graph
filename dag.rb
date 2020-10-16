@@ -10,14 +10,6 @@ class Workflow
     @state = state
   end
 
-  def tsort_each_child(node, &block)
-    flow[node].each(&block)
-  end
-
-  def tsort_each_node(&block)
-    flow.each_key(&block)
-  end
-
   def static_order
     tsort
   end
@@ -33,17 +25,27 @@ class Workflow
   def get_ready?(node)
     each_strongly_connected_component_from(node) do |nodes|
       next if nodes.include? node
-      return false if nodes.any? { |n| state[n] == :not_done }
+      return false if nodes.any? { |n| !state["#{n}_done?".to_sym].call }
     end
     true
   end
 
   def done
-    static_order.filter { |node| state[node] == :done }
+    static_order.filter { |node| state["#{node}_done?".to_sym].call }
   end
 
   def not_done
-    static_order.filter { |node| state[node] == :not_done }
+    static_order.filter { |node| !state["#{node}_done?".to_sym].call }
+  end
+
+  private
+
+  def tsort_each_child(node, &block)
+    flow[node].each(&block)
+  end
+
+  def tsort_each_node(&block)
+    flow.each_key(&block)
   end
 end
 
@@ -62,14 +64,14 @@ flow = {
 }
 
 state = {
-  ca: :done,
-  kr: :done,
-  ba: :not_done,
-  ua: :not_done,
-  qt: :done,
-  da: :not_done,
-  rc: :not_done,
-  rp: :not_done
+  ca_done?: -> { true },
+  kr_done?: -> { true },
+  ba_done?: -> { false },
+  ua_done?: -> { false },
+  qt_done?: -> { false },
+  da_done?: -> { false },
+  rc_done?: -> { false },
+  rp_done?: -> { false },
 }
 
 workflow = Workflow.new(flow: flow, state: state)
