@@ -26,23 +26,23 @@ class Workflow
   def get_ready?(node)
     each_strongly_connected_component_from(node) do |nodes|
       next if nodes.include? node
-      return false if nodes.any? { |n| !self.send("#{n}_done?") }
+      return false if nodes.any? { |n| !done?(n) }
     end
     true
   end
 
   def done
-    static_order.filter { |node| self.send("#{node}_done?") }
+    static_order.filter { |node| done?(node) }
   end
 
   def not_done
-    static_order.filter { |node| !self.send("#{node}_done?") }
+    static_order.filter { |node| !done?(node) }
   end
 
   def valid?
     static_order.all? do |node|
       each_strongly_connected_component_from(node) do |nodes|
-        return self.send("#{node}_done?") && nodes.all? { |n| self.send("#{n}_done?") }
+        return done?(node) && nodes.all? { |n| done?(n) }
       end
     end
   end
@@ -61,6 +61,10 @@ class Workflow
 
   def tsort_each_node(&block)
     flow.each_key(&block)
+  end
+
+  def done?(node)
+    self.send("#{node}_done?")
   end
 end
 
