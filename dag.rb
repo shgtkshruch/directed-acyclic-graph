@@ -26,6 +26,7 @@ class Workflow
   def get_ready?(node)
     each_strongly_connected_component_from(node) do |nodes|
       next if nodes.include? node
+      # TODO: return reason why this node is not ready
       return false if nodes.any? { |n| !done?(n) }
     end
     true
@@ -36,7 +37,7 @@ class Workflow
   end
 
   def not_done
-    static_order.filter { |node| !done?(node) }
+    static_order - done
   end
 
   def valid?
