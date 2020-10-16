@@ -3,11 +3,12 @@ require 'tsort'
 class Workflow
   include TSort
 
-  attr_accessor :flow, :state
-
-  def initialize(flow:, state:)
-    @flow = flow
+  def initialize(state:)
     @state = state
+  end
+
+  def flow
+    raise NotImplementedError, "#{self.class.name} must imprement `flow` method"
   end
 
   def static_order
@@ -40,6 +41,8 @@ class Workflow
 
   private
 
+  attr_reader :state
+
   def tsort_each_child(node, &block)
     flow[node].each(&block)
   end
@@ -49,19 +52,23 @@ class Workflow
   end
 end
 
-flow = {
-  ca: [],
-  kr: [:ca],
-  ba: [:kr],
-  ua: [:ca],
-  qt: [:ua],
-  da: [
-    :ba,
-    :ua
-  ],
-  rc: [:da],
-  rp: [:rc]
-}
+class ProFlow < Workflow
+  def flow
+    {
+      ca: [],
+      kr: [:ca],
+      ba: [:kr],
+      ua: [:ca],
+      qt: [:ua],
+      da: [
+        :ba,
+        :ua
+      ],
+      rc: [:da],
+      rp: [:rc]
+    }
+  end
+end
 
 state = {
   ca_done?: -> { true },
@@ -74,9 +81,8 @@ state = {
   rp_done?: -> { false },
 }
 
-workflow = Workflow.new(flow: flow, state: state)
-# p workflow.static_order
-# p workflow.done
-# p workflow.not_done
-# p workflow.get_ready?(:ba)
-p workflow.get_ready
+proFlow = ProFlow.new(state: state)
+# p proFlow.done
+# p proFlow.not_done
+# p proFlow.get_ready?(:da)
+p proFlow.get_ready
