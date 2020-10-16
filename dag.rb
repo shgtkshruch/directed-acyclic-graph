@@ -39,6 +39,18 @@ class Workflow
     static_order.filter { |node| !self.send("#{node}_done?") }
   end
 
+  def valid?
+    static_order.all? do |node|
+      each_strongly_connected_component_from(node) do |nodes|
+        return self.send("#{node}_done?") && nodes.all? { |n| self.send("#{n}_done?") }
+      end
+    end
+  end
+
+  def invalid?
+    !valid?
+  end
+
   private
 
   attr_reader :item
@@ -138,7 +150,9 @@ end
 
 item = Item.new
 proFlow = ProFlow.new(item)
-# p proFlow.done
-# p proFlow.not_done
-# p proFlow.get_ready?(:da)
+p proFlow.valid?
+p proFlow.invalid?
+p proFlow.done
+p proFlow.not_done
+p proFlow.get_ready?(:da)
 p proFlow.get_ready
