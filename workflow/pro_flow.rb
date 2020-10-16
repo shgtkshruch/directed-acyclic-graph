@@ -8,10 +8,7 @@ class ProFlow < Workflow
       ba: [:kr],
       ua: [:ca],
       qt: [:ua],
-      da: [
-        :ba,
-        :ua
-      ],
+      da: [:ba, :ua],
       rc: [:da],
       rp: [:rc]
     }

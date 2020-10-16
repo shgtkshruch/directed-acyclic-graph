@@ -16,11 +16,7 @@ class Workflow
   end
 
   def get_ready
-    [].tap do |ready_node|
-      not_done.each do |node|
-        ready_node.push node if get_ready?(node)
-      end
-    end
+    not_done.filter { |node| get_ready?(node) }
   end
 
   def get_ready?(node)
