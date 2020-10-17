@@ -20,12 +20,16 @@ class Workflow
   end
 
   def get_ready?(node)
-    each_strongly_connected_component_from(node) do |nodes|
-      next if nodes.include? node
-      # TODO: return reason why this node is not ready
-      return false if !nodes.all?(&method(:done?))
+    parents(node).all?(&method(:done?))
+  end
+
+  def parents(node)
+    [].tap do |parents|
+      each_strongly_connected_component_from(node) do |nodes|
+        next if nodes.include? node
+        parents.push *nodes
+      end
     end
-    true
   end
 
   def done

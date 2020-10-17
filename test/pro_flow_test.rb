@@ -24,6 +24,11 @@ class ProFlowTest < Minitest::Test
     assert_equal [:ba, :ua, :qt, :da, :rc, :rp], @pro_flow.not_done
   end
 
+  def test_parents
+    assert_equal [:ca], @pro_flow.parents(:ua)
+    assert_equal [:ca, :kr, :ba, :ua], @pro_flow.parents(:da)
+  end
+
   def test_get_ready?
     assert_equal true, @pro_flow.get_ready?(:ba)
     assert_equal false, @pro_flow.get_ready?(:da)
