@@ -40,7 +40,12 @@ class Workflow
     static_order - done
   end
 
+  def completed?
+    static_order.all?(&method(:done?))
+  end
+
   def valid?
+    return true if completed?
     static_order.all? do |node|
       each_strongly_connected_component_from(node) do |nodes|
         return done?(node) && nodes.all?(&method(:done?))
